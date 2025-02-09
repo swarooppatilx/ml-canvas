@@ -286,12 +286,21 @@ document
     generateButton.textContent = "Generating code...";
     generatedCode.textContent = "";
 
-    const prompt = `
-        Generate Python code for the following ML workflow:
-        ${JSON.stringify(workflow)}
-        Dataset sample: ${JSON.stringify(userData.slice(0, 5))}
-        Include preprocessing, model training, and evaluation.
-      `;
+    // Get the custom prompt (if any)
+    const customPrompt = document.getElementById("customPrompt").value.trim();
+
+    // Build the prompt
+    const defaultPrompt = `
+      Generate Python code for the following ML workflow:
+      ${JSON.stringify(workflow)}
+      Dataset sample: ${JSON.stringify(userData.slice(0, 5))}
+      Include preprocessing, model training, and evaluation.
+    `;
+
+    // Append the custom prompt to the default prompt (if provided)
+    const prompt = customPrompt
+      ? `${defaultPrompt}\n\nAdditional Instructions: ${customPrompt}`
+      : defaultPrompt;
 
     try {
       const code = await generateWithGemini(prompt);
