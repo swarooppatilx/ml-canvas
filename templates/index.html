@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Drag and Drop AI Model Builder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='/style.css') }}" />
+  </head>
+  <body>
+    <div id="sidebar">
+      <h2>Components</h2>
+      <div class="component" draggable="true" data-type="data">Data Input</div>
+      <div class="component" draggable="true" data-type="explore">
+        Data Exploration
+      </div>
+      <div class="component" draggable="true" data-type="feature">
+        Feature Engineering
+      </div>
+      <div class="component" draggable="true" data-type="preprocess">
+        Preprocessing
+      </div>
+      <div class="component" draggable="true" data-type="model">
+        Model Selection
+      </div>
+      <div class="component" draggable="true" data-type="tune">
+        Model Tuning
+      </div>
+      <div class="component" draggable="true" data-type="validate">
+        Validation
+      </div>
+      <div class="component" draggable="true" data-type="evaluate">
+        Evaluation
+      </div>
+      <div class="component" draggable="true" data-type="deploy">
+        Deployment
+      </div>
+      <textarea id="customPrompt" placeholder="Enter custom prompt (optional)"></textarea>
+      <input type="text" id="apiKeyInput" placeholder="Enter Gemini API Key" />
+      <button id="generateButton">Generate Code</button>
+    </div>
+
+    <div id="workspace">
+      <div id="canvas">
+        <svg>
+          <defs>
+            <marker
+              id="arrowhead"
+              markerWidth="10"
+              markerHeight="7"
+              refX="9"
+              refY="3.5"
+              orient="auto"
+            >
+              <polygon points="0 0, 10 3.5, 0 7" fill="#3498db" />
+              <!-- Bright blue arrowhead -->
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <div id="code-panel">
+        <pre id="generatedCode"></pre>
+      </div>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-header">
+        <span>ML Assistant</span>
+        <button class="chat-minimize">−</button>
+      </div>
+      <div class="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" placeholder="Ask about your dataset..." />
+        <button>Send</button>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='/script.js') }}"></script>
+  </body>
+</html>
