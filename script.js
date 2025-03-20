@@ -187,7 +187,7 @@ function updateSubtypes(node) {
   if (!mainSelect || !subSelect || !NodeSubtypes[type]) return;
 
   const mainValue = mainSelect.value;
-  const subOptions = NodeSubtypes[type][mainValue] || [];
+  const subOptions = NodeSubtypes[type][mainValue] || '';
 
   // Clear previous options
   subSelect.innerHTML = "";
@@ -350,12 +350,12 @@ document
     });
 
     const generateButton = document.getElementById("generateButton");
-    const generatedCode = document.getElementById("generatedCode");
+    const generatedCodeElement = document.getElementById("generatedCode");
 
     // Disable the button and update its text
     generateButton.disabled = true;
     generateButton.textContent = "Generating code...";
-    generatedCode.textContent = "";
+    generatedCodeElement.textContent = "";
 
     // Get the custom prompt (if any)
     const customPrompt = document.getElementById("customPrompt").value.trim();
@@ -375,9 +375,10 @@ document
 
     try {
       const code = await generateWithGemini(prompt);
-      generatedCode.textContent = code;
+      generatedCodeElement.textContent = code;
+      Prism.highlightElement(generatedCodeElement); // Call highlight after setting content
     } catch (error) {
-      generatedCode.textContent = "Error generating code: " + error.message;
+      generatedCodeElement.textContent = "Error generating code: " + error.message;
     } finally {
       // Re-enable the button and reset its text
       generateButton.disabled = false;
