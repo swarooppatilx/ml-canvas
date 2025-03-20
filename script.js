@@ -13,7 +13,50 @@ const NodeTypes = {
   TUNE: "tune",
   VALIDATE: "validate",
   EVALUATE: "evaluate",
-  DEPLOY: "deploy",
+  SAVE: "save",
+};
+
+// Define subtypes for each main option (excluding DATA, which is file input)
+const NodeSubtypes = {
+  [NodeTypes.EXPLORE]: {
+    summary: ["Basic Summary", "Advanced Summary"],
+    missing: ["Count Missing", "Highlight Missing"],
+    visualize: ["Bar Chart", "Scatter Plot", "Line Chart"],
+  },
+  [NodeTypes.FEATURE]: {
+    encoding: ["One-hot Encoding", "Label Encoding"],
+    scaling: ["Min-Max Scaling", "Standard Scaling"],
+    selection: ["Filter Methods", "Wrapper Methods"],
+  },
+  [NodeTypes.PREPROCESS]: {
+    split: ["80/20 Split", "70/30 Split"],
+    impute: ["Mean Imputation", "Median Imputation"],
+    normalize: ["L1 Normalization", "L2 Normalization"],
+  },
+  [NodeTypes.MODEL]: {
+    logistic_regression: ["L1 Regularization", "L2 Regularization"],
+    random_forest: ["Shallow Trees", "Deep Trees"],
+    svm: ["Linear Kernel", "RBF Kernel"],
+    xgboost: ["Tree Booster", "Linear Booster"],
+  },
+  [NodeTypes.TUNE]: {
+    grid: ["Exhaustive Grid", "Step Grid"],
+    random: ["Random Sampling", "Monte Carlo"],
+    bayesian: ["Gaussian Process", "Tree-structured"],
+  },
+  [NodeTypes.VALIDATE]: {
+    cross_val: ["K-Fold", "Stratified K-Fold"],
+    holdout: ["Single Split", "Multiple Splits"],
+  },
+  [NodeTypes.EVALUATE]: {
+    classification: ["Accuracy", "F1 Score", "ROC AUC"],
+    regression: ["MSE", "R2 Score"],
+    clustering: ["Silhouette Score", "Dunn Index"],
+  },
+  [NodeTypes.SAVE]: {
+    pickle: ["Binary Format", "Protocol 4"],
+    onnx: ["Standard ONNX", "Optimized ONNX"],
+  },
 };
 
 const NodeTemplates = {
@@ -23,66 +66,74 @@ const NodeTemplates = {
       `,
   [NodeTypes.EXPLORE]: `
         Data Exploration
-        <select>
+        <select class="main-select">
           <option value="summary">Summary Statistics</option>
           <option value="missing">Check Missing Values</option>
           <option value="visualize">Visualize Data</option>
         </select>
+        <select class="sub-select"></select>
       `,
   [NodeTypes.FEATURE]: `
         Feature Engineering
-        <select>
+        <select class="main-select">
           <option value="encoding">Categorical Encoding</option>
           <option value="scaling">Feature Scaling</option>
           <option value="selection">Feature Selection</option>
         </select>
+        <select class="sub-select"></select>
       `,
   [NodeTypes.PREPROCESS]: `
         Preprocessing
-        <select>
+        <select class="main-select">
           <option value="split">Train-Test Split</option>
           <option value="impute">Impute Missing Values</option>
           <option value="normalize">Normalize Data</option>
         </select>
+        <select class="sub-select"></select>
       `,
   [NodeTypes.MODEL]: `
         Model Selection
-        <select>
+        <select class="main-select">
           <option value="logistic_regression">Logistic Regression</option>
           <option value="random_forest">Random Forest</option>
           <option value="svm">Support Vector Machine</option>
           <option value="xgboost">XGBoost</option>
         </select>
+        <select class="sub-select"></select>
       `,
   [NodeTypes.TUNE]: `
         Model Tuning
-        <select>
+        <select class="main-select">
           <option value="grid">Grid Search</option>
           <option value="random">Random Search</option>
           <option value="bayesian">Bayesian Optimization</option>
         </select>
+        <select class="sub-select"></select>
       `,
   [NodeTypes.VALIDATE]: `
         Validation
-        <select>
+        <select class="main-select">
           <option value="cross_val">Cross-Validation</option>
           <option value="holdout">Holdout Validation</option>
         </select>
+        <select class="sub-select"></select>
       `,
   [NodeTypes.EVALUATE]: `
         Evaluation
-        <select>
+        <select class="main-select">
           <option value="classification">Classification Metrics</option>
           <option value="regression">Regression Metrics</option>
           <option value="clustering">Clustering Metrics</option>
         </select>
+        <select class="sub-select"></select>
       `,
-  [NodeTypes.DEPLOY]: `
-        Deployment
-        <select>
+  [NodeTypes.SAVE]: `
+        SAVE
+        <select class="main-select">
           <option value="pickle">Save as Pickle</option>
           <option value="onnx">Export as ONNX</option>
         </select>
+        <select class="sub-select"></select>
       `,
 };
 
@@ -109,6 +160,16 @@ function createNode(type, x, y) {
   nodes.push(node);
   document.getElementById("canvas").appendChild(node);
 
+  // For nodes with a main-select, initialize the sub-select options
+  const mainSelect = node.querySelector(".main-select");
+  const subSelect = node.querySelector(".sub-select");
+  if (mainSelect && subSelect) {
+    // Populate sub-select based on default main option
+    updateSubtypes(node);
+    // Update sub-select when main select changes
+    mainSelect.addEventListener("change", () => updateSubtypes(node));
+  }
+
   // Automatically connect to the previous node if it exists
   if (nodes.length > 1) {
     const previousNode = nodes[nodes.length - 2];
@@ -117,6 +178,26 @@ function createNode(type, x, y) {
 
   updateConnections(); // Update connections when a new node is added
   return node;
+}
+
+function updateSubtypes(node) {
+  const type = node.dataset.type;
+  const mainSelect = node.querySelector(".main-select");
+  const subSelect = node.querySelector(".sub-select");
+  if (!mainSelect || !subSelect || !NodeSubtypes[type]) return;
+
+  const mainValue = mainSelect.value;
+  const subOptions = NodeSubtypes[type][mainValue] || [];
+
+  // Clear previous options
+  subSelect.innerHTML = "";
+  // Populate new options
+  subOptions.forEach((option) => {
+    const opt = document.createElement("option");
+    opt.value = option;
+    opt.textContent = option;
+    subSelect.appendChild(opt);
+  });
 }
 
 function deleteNode(node) {
@@ -257,10 +338,16 @@ document
       return;
     }
 
-    const workflow = nodes.map((node) => ({
-      type: node.dataset.type,
-      config: node.querySelector("select")?.value,
-    }));
+    // Build workflow data including both main and subtype selections
+    const workflow = nodes.map((node) => {
+      const mainSelect = node.querySelector(".main-select");
+      const subSelect = node.querySelector(".sub-select");
+      return {
+        type: node.dataset.type,
+        mainOption: mainSelect ? mainSelect.value : null,
+        subOption: subSelect ? subSelect.value : null,
+      };
+    });
 
     const generateButton = document.getElementById("generateButton");
     const generatedCode = document.getElementById("generatedCode");
