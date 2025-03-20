@@ -1,19 +1,8 @@
-const DEFAULT_API_KEY = "YOUR_DEFAULT_API_KEY"; // Replace with a default API key if needed
-let apiKey = localStorage.getItem("geminiApiKey") || DEFAULT_API_KEY;
+let apiKey = "AIzaSyCS6Sbuay-uzHNsC1aFrXN7EbG7sOnZWBY"; //go ahead abuse this api key
 let nodes = [];
 let connections = [];
 let startNode = null;
 let userData = null;
-
-// Load API key from localStorage and set it in the input field
-const apiKeyInput = document.getElementById("apiKeyInput");
-apiKeyInput.value = apiKey;
-
-// Save API key to localStorage when the input changes
-apiKeyInput.addEventListener("input", (e) => {
-  apiKey = e.target.value;
-  localStorage.setItem("geminiApiKey", apiKey);
-});
 
 const NodeTypes = {
   DATA: "data",
@@ -265,11 +254,6 @@ document
   .addEventListener("click", async () => {
     if (!userData) {
       alert("Please upload a dataset first!");
-      return;
-    }
-
-    if (!apiKey) {
-      alert("Please enter a valid Gemini API key!");
       return;
     }
 
