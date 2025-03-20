@@ -15,21 +15,49 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
           0 4px 6px -4px rgba(0, 0, 0, 0.1);
       }
+      #chatBody::-webkit-scrollbar {
+        width: 8px;
+      }
+      #chatBody::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 4px;
+      }
+      #chatBody::-webkit-scrollbar-track {
+        background-color: #f1f1f1;
+        border-radius: 4px;
+      }
+      .user-message {
+        background-color: #e0f7fa; /* Light cyan */
+        color: #004d40; /* Dark teal */
+        align-self: flex-end;
+        border-radius: 8px 8px 0 8px;
+      }
+      .bot-message {
+        background-color: #f5f5f5; /* Light gray */
+        color: #333;
+        align-self: flex-start;
+        border-radius: 0 8px 8px 8px;
+      }
+      .typing-indicator {
+        font-size: 0.8rem;
+        color: #777;
+        align-self: flex-start;
+        margin-top: 2px;
+        font-style: italic;
+      }
     </style>
   </head>
   <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
-    <!-- Header -->
     <header class="bg-gradient-to-r from-purple-600 to-indigo-600 py-20">
       <div class="container mx-auto px-6 text-center">
         <h1 class="text-5xl font-bold text-white mb-4">ML Canvas</h1>
         <p class="text-xl text-gray-200">
-          Empower your machine learning journey with an interactive, drag-and-drop
-          interface.
+          Empower your machine learning journey with an interactive,
+          drag-and-drop interface.
         </p>
       </div>
     </header>
 
-    <!-- Hero Section -->
     <section class="py-20">
       <div class="container mx-auto px-6 text-center">
         <h2 class="text-4xl font-bold mb-6">Design. Generate. Innovate.</h2>
@@ -45,12 +73,10 @@
       </div>
     </section>
 
-    <!-- Features Section -->
     <section id="features" class="py-20 bg-white dark:bg-gray-800">
       <div class="container mx-auto px-6">
         <h2 class="text-3xl font-bold text-center mb-12">Features</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <!-- Feature 1 -->
           <div
             class="bg-white dark:bg-gray-700 p-8 rounded-lg shadow-lg hover-scale"
           >
@@ -59,7 +85,6 @@
               Design your workflow using our user-friendly drag-and-drop canvas.
             </p>
           </div>
-          <!-- Feature 2 -->
           <div
             class="bg-white dark:bg-gray-700 p-8 rounded-lg shadow-lg hover-scale"
           >
@@ -69,7 +94,6 @@
               pipeline.
             </p>
           </div>
-          <!-- Feature 3 -->
           <div
             class="bg-white dark:bg-gray-700 p-8 rounded-lg shadow-lg hover-scale"
           >
@@ -82,7 +106,6 @@
       </div>
     </section>
 
-    <!-- Roadmap Section -->
     <section id="roadmap" class="py-20">
       <div class="container mx-auto px-6">
         <h2 class="text-3xl font-bold text-center mb-12">ML Workflow Map</h2>
@@ -96,7 +119,6 @@
       </div>
     </section>
 
-    <!-- Resources Section -->
     <section id="resources" class="py-20 bg-white dark:bg-gray-800">
       <div class="container mx-auto px-6">
         <h2 class="text-3xl font-bold text-center mb-12">Resources</h2>
@@ -135,32 +157,34 @@
       </div>
     </section>
 
-    <!-- Courses Section -->
     <section id="courses" class="py-20">
       <div class="container mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center mb-12">Courses & Tutorials</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg">
-        <h3 class="text-xl font-bold mb-4">Introduction to Machine Learning</h3>
-        <iframe
-          src="https://www.youtube.com/embed/GwIo3gDZCVQ"
-          class="w-full h-80 rounded-lg"
-          allowfullscreen
-        ></iframe>
+        <h2 class="text-3xl font-bold text-center mb-12">
+          Courses & Tutorials
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-bold mb-4">
+              Introduction to Machine Learning
+            </h3>
+            <iframe
+              src="https://www.youtube.com/embed/GwIo3gDZCVQ"
+              class="w-full h-80 rounded-lg"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-bold mb-4">Building ML Pipelines</h3>
+            <iframe
+              src="https://www.youtube.com/embed/7eh4d6sabA0"
+              class="w-full h-80 rounded-lg"
+              allowfullscreen
+            ></iframe>
+          </div>
         </div>
-        <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg">
-        <h3 class="text-xl font-bold mb-4">Building ML Pipelines</h3>
-        <iframe
-          src="https://www.youtube.com/embed/7eh4d6sabA0"
-          class="w-full h-80 rounded-lg"
-          allowfullscreen
-        ></iframe>
-        </div>
-      </div>
       </div>
     </section>
 
-    <!-- About Section -->
     <section id="about" class="py-20 bg-white dark:bg-gray-800">
       <div class="container mx-auto px-6 text-center">
         <h2 class="text-3xl font-bold mb-6">About the Project</h2>
@@ -173,7 +197,6 @@
       </div>
     </section>
 
-    <!-- Get Started Section -->
     <section id="get-started" class="py-20">
       <div class="container mx-auto px-6 text-center">
         <h2 class="text-3xl font-bold mb-6">Get Started</h2>
@@ -190,11 +213,46 @@
       </div>
     </section>
 
-    <!-- Footer -->
+    <button
+      id="chatToggle"
+      onclick="toggleChatbot()"
+      class="fixed bottom-5 right-5 bg-blue-500 text-white p-3 rounded-full shadow-lg"
+    >
+      💬
+    </button>
+    <div
+      id="chatbot"
+      class="hidden fixed bottom-5 right-5 w-80 bg-white rounded-lg shadow-lg flex flex-col overflow-hidden"
+    >
+      <div
+        class="bg-blue-500 text-white p-3 flex justify-between items-center cursor-pointer"
+        onclick="minimizeChatbot()"
+      >
+        <span>Chatbot</span>
+        <button class="bg-transparent border-none text-white text-lg">—</button>
+      </div>
+      <div id="chatBody" class="h-72 overflow-y-auto p-3 flex flex-col"></div>
+      <div class="flex p-3 border-t border-gray-300">
+        <input
+          id="userInput"
+          type="text"
+          placeholder="Type a message..."
+          class="flex-1 p-2 border rounded-md text-neutral-800"
+        />
+        <button
+          onclick="sendMessage()"
+          class="ml-2 px-3 py-2 bg-blue-500 text-white rounded-md"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+
     <footer class="bg-gray-800 text-white py-10">
       <div class="container mx-auto px-6 text-center">
-        <p>&copy; 2025 ML Canvas. All Rights Reserved.</p>
+        <p>© 2025 ML Canvas. All Rights Reserved.</p>
       </div>
     </footer>
+    <script src="chatbot.js"></script>
   </body>
 </html>
