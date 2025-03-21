@@ -183,46 +183,10 @@
       </div>
     </section>
 
-    <button
-      id="chatToggle"
-      onclick="toggleChatbot()"
-      class="fixed bottom-5 right-5 bg-blue-700 text-white p-3 rounded-full shadow-lg"
-    >
-      💬
-    </button>
-    <div
-      id="chatbot"
-      class="hidden fixed bottom-5 right-5 w-80 bg-gray-800 text-white rounded-lg shadow-lg flex flex-col overflow-hidden border border-gray-700"
-    >
-      <div
-        class="bg-blue-700 text-white p-3 flex justify-between items-center cursor-pointer"
-        onclick="minimizeChatbot()"
-      >
-        <span>Chatbot</span>
-        <button class="bg-transparent border-none text-white text-lg">—</button>
-      </div>
-      <div id="chatBody" class="h-72 overflow-y-auto p-3 flex flex-col"></div>
-      <div class="flex p-3 border-t border-gray-700">
-        <input
-          id="userInput"
-          type="text"
-          placeholder="Type a message..."
-          class="flex-1 p-2 border rounded-md bg-gray-700 text-white"
-        />
-        <button
-          onclick="sendMessage()"
-          class="ml-2 px-3 py-2 bg-blue-700 text-white rounded-md hover:bg-blue-800"
-        >
-          Send
-        </button>
-      </div>
-    </div>
-
     <footer class="bg-gray-800 text-white py-10">
       <div class="container mx-auto px-6 text-center">
         <p>© 2025 ML Canvas. All Rights Reserved.</p>
       </div>
     </footer>
-    <script src="chatbot.js"></script>
   </body>
 </html>

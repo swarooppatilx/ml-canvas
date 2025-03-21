@@ -1,4 +1,10 @@
-let apiKey = "AIzaSyCS6Sbuay-uzHNsC1aFrXN7EbG7sOnZWBY"; //go ahead abuse this api key
+const apiKey = "AIzaSyCS6Sbuay-uzHNsC1aFrXN7EbG7sOnZWBY"; // API key for Gemini
+const chatbot = document.getElementById("chatbot");
+const chatToggle = document.getElementById("chatToggle");
+const chatBody = document.getElementById("chatBody");
+const userInput = document.getElementById("userInput");
+let isTyping = false; // To track if the bot is "typing"
+
 let nodes = [];
 let connections = [];
 let startNode = null;
@@ -16,7 +22,6 @@ const NodeTypes = {
   SAVE: "save",
 };
 
-// Define subtypes for each main option (excluding DATA, which is file input)
 const NodeSubtypes = {
   [NodeTypes.EXPLORE]: {
     summary: ["Basic Summary", "Advanced Summary"],
@@ -137,6 +142,112 @@ const NodeTemplates = {
       `,
 };
 
+function appendMessage(sender, message, isBot = false) {
+  const messageDiv = document.createElement("div");
+  messageDiv.textContent = `${sender}: ${message}`;
+  messageDiv.classList.add("p-2", "rounded-md", "mt-1", "break-words");
+
+  if (sender === "You") {
+    messageDiv.classList.add("user-message");
+  } else {
+    messageDiv.classList.add("bot-message");
+  }
+
+  chatBody.appendChild(messageDiv);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+async function sendMessage() {
+  const message = userInput.value.trim();
+  if (!message) return;
+
+  appendMessage("You", message);
+  userInput.value = "";
+
+  // Show typing indicator
+  const typingDiv = document.createElement("div");
+  typingDiv.classList.add("typing-indicator");
+  typingDiv.textContent = "Bot is typing...";
+  chatBody.appendChild(typingDiv);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  isTyping = true;
+
+  try {
+    // Include context about the current workflow in the chatbot prompt
+    const workflowContext = nodes.map((node) => {
+      const mainSelect = node.querySelector(".main-select");
+      const subSelect = node.querySelector(".sub-select");
+      return {
+        type: node.dataset.type,
+        mainOption: mainSelect ? mainSelect.value : null,
+        subOption: subSelect ? subSelect.value : null,
+      };
+    });
+
+    const contextPrompt = `
+      Current Workflow Context:
+      ${JSON.stringify(workflowContext, null, 2)}
+      Dataset Sample:
+      ${
+        userData
+          ? JSON.stringify(userData.slice(0, 5))
+          : "No dataset uploaded yet."
+      }
+      User Message: ${message}
+    `;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: contextPrompt }] }],
+        }),
+      }
+    );
+
+    // Remove typing indicator
+    if (isTyping) {
+      chatBody.removeChild(typingDiv);
+      isTyping = false;
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage =
+        errorData.error?.message ||
+        `Error fetching response: ${response.status}`;
+      appendMessage("Bot", errorMessage);
+    } else {
+      const data = await response.json();
+      const botMessage =
+        data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "I couldn't understand that.";
+      appendMessage("Bot", botMessage);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    // Remove typing indicator in case of an error
+    if (isTyping) {
+      chatBody.removeChild(typingDiv);
+      isTyping = false;
+    }
+    appendMessage("Bot", "Error communicating with the chatbot.");
+  }
+}
+
+function toggleChatbot() {
+  chatbot.classList.toggle("hidden");
+  chatToggle.classList.toggle("hidden");
+}
+
+function minimizeChatbot() {
+  chatbot.classList.add("hidden");
+  chatToggle.classList.remove("hidden");
+}
+
+// Node and workflow-related functions (unchanged from script.js)
 function createNode(type, x, y) {
   const node = document.createElement("div");
   node.className = "node";
@@ -147,12 +258,11 @@ function createNode(type, x, y) {
   node.addEventListener("click", handleNodeClick);
   makeDraggable(node);
 
-  // Add delete button
   const deleteButton = document.createElement("button");
   deleteButton.className = "delete-button";
   deleteButton.textContent = "×";
   deleteButton.addEventListener("click", (e) => {
-    e.stopPropagation(); // Prevent node click event
+    e.stopPropagation();
     deleteNode(node);
   });
   node.appendChild(deleteButton);
@@ -160,23 +270,19 @@ function createNode(type, x, y) {
   nodes.push(node);
   document.getElementById("canvas").appendChild(node);
 
-  // For nodes with a main-select, initialize the sub-select options
   const mainSelect = node.querySelector(".main-select");
   const subSelect = node.querySelector(".sub-select");
   if (mainSelect && subSelect) {
-    // Populate sub-select based on default main option
     updateSubtypes(node);
-    // Update sub-select when main select changes
     mainSelect.addEventListener("change", () => updateSubtypes(node));
   }
 
-  // Automatically connect to the previous node if it exists
   if (nodes.length > 1) {
     const previousNode = nodes[nodes.length - 2];
     createConnection(previousNode, node);
   }
 
-  updateConnections(); // Update connections when a new node is added
+  updateConnections();
   return node;
 }
 
@@ -187,11 +293,9 @@ function updateSubtypes(node) {
   if (!mainSelect || !subSelect || !NodeSubtypes[type]) return;
 
   const mainValue = mainSelect.value;
-  const subOptions = NodeSubtypes[type][mainValue] || '';
+  const subOptions = NodeSubtypes[type][mainValue] || "";
 
-  // Clear previous options
   subSelect.innerHTML = "";
-  // Populate new options
   subOptions.forEach((option) => {
     const opt = document.createElement("option");
     opt.value = option;
@@ -201,18 +305,11 @@ function updateSubtypes(node) {
 }
 
 function deleteNode(node) {
-  // Remove the node from the DOM
   node.remove();
-
-  // Remove the node from the nodes array
   nodes = nodes.filter((n) => n !== node);
-
-  // Remove any connections involving this node
   connections = connections.filter(
     (conn) => conn.from !== node && conn.to !== node
   );
-
-  // Update the connections visually
   updateConnections();
 }
 
@@ -243,12 +340,9 @@ function handleNodeClick(e) {
   if (startNode === null) {
     startNode = e.currentTarget;
   } else if (startNode !== e.currentTarget) {
-    // Check if the target node already has an incoming connection
     const hasIncomingConnection = connections.some(
       (conn) => conn.to === e.currentTarget
     );
-
-    // Check if the start node already has an outgoing connection
     const hasOutgoingConnection = connections.some(
       (conn) => conn.from === startNode
     );
@@ -338,7 +432,6 @@ document
       return;
     }
 
-    // Build workflow data including both main and subtype selections
     const workflow = nodes.map((node) => {
       const mainSelect = node.querySelector(".main-select");
       const subSelect = node.querySelector(".sub-select");
@@ -352,15 +445,12 @@ document
     const generateButton = document.getElementById("generateButton");
     const generatedCodeElement = document.getElementById("generatedCode");
 
-    // Disable the button and update its text
     generateButton.disabled = true;
     generateButton.textContent = "Generating code...";
     generatedCodeElement.textContent = "";
 
-    // Get the custom prompt (if any)
     const customPrompt = document.getElementById("customPrompt").value.trim();
 
-    // Build the prompt
     const defaultPrompt = `
       Generate Python code for the following ML workflow:
       ${JSON.stringify(workflow)}
@@ -368,7 +458,6 @@ document
       Include preprocessing, model training, and evaluation.
     `;
 
-    // Append the custom prompt to the default prompt (if provided)
     const prompt = customPrompt
       ? `${defaultPrompt}\n\nAdditional Instructions: ${customPrompt}`
       : defaultPrompt;
@@ -376,11 +465,11 @@ document
     try {
       const code = await generateWithGemini(prompt);
       generatedCodeElement.textContent = code;
-      Prism.highlightElement(generatedCodeElement); // Call highlight after setting content
+      Prism.highlightElement(generatedCodeElement);
     } catch (error) {
-      generatedCodeElement.textContent = "Error generating code: " + error.message;
+      generatedCodeElement.textContent =
+        "Error generating code: " + error.message;
     } finally {
-      // Re-enable the button and reset its text
       generateButton.disabled = false;
       generateButton.textContent = "Generate Code";
     }
